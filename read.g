@@ -20,6 +20,7 @@ ReadPackage("recog","gap/base/methsel.gi");
 ReadPackage("recog","gap/base/recognition.gi");
 ReadPackage("recog","gap/base/kernel.gi");
 ReadPackage("recog","gap/base/projective.gi");
+ReadPackage("recog","gap/base/presentation.gi");
 
 # Some tools
 ReadPackage("recog","gap/utils.gi");
