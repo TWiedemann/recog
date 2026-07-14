@@ -19,11 +19,12 @@
 
 # Returns the presentation Fp (i.e. an FpGroup) of S_n from
 # [BLN+03] "A black-box group algorithm for recognizing finite symmetric 
-# and alternating groups, I", (2.1),
-# [CM80] "Generators and relations for discrete groups", (6.21).
+# and alternating groups, I", (2.1)
+# or an "obvious" presentation of S_n for small n.
 # For n=1, Fp is the trivial group.
-# For n>1, Fp.1 corresponds to (1,2).
-# For n>2, Fp has a second generator Fp.2 which corresponds to (1,...,n).
+# For n>1, Fp has a generator Fp.1 which corresponds to (1,2).
+# This is the only generator if n=2.
+# For n>2, Fp has exactly two generators and Fp.2 corresponds to (1,...,n).
 # Note: The claim in [BLN+03] that this presentation can be found in
 # [CM80] "Generators and relations for discrete groups"
 # is apparently slightly imprecise. In [CM80, (6.26)],
@@ -33,7 +34,8 @@
 # can add additional relations that are satisfied in S_n without changing the
 # presented group, so the presentation in [BLN+03, (2.1)] is correct.
 RECOG.SnPresentation := function(n)
-    local F, rels;
+    local F, rels, s, t, j;
+    # Edge cases for small n
     if n<1 then
         return fail;
     elif n=1 then
@@ -41,37 +43,55 @@ RECOG.SnPresentation := function(n)
     elif n=2 then
         F := FreeGroup(1);
         return F / [ F.1^2 ];
-    else
-        F := FreeGroup(2);
-        t := F.1; # Notation for s and t as in [BLN+03]
-        s := F.2;
-        rels := [ s^n, t^2, (s*t)^(n-1) ];
-        rels := Concatenation(
-            rels, List([2..QuoInt(n,2)], j -> (t*s^-j*t*s^j)^2)
-        );
-        return F / rels;
     fi;
+    # Generic case
+    F := FreeGroup(2);
+    t := F.1; # Notation for s and t as in [BLN+03]
+    s := F.2;
+    rels := [ s^n, t^2, (s*t)^(n-1) ];
+    for j in [2..QuoInt(n,2)] do
+        Add(rels, (t*s^-j*t*s^j)^2);
+    od;
+    return F / rels;
 end;
 
-#
+# Returns the presentation Fp (i.e. an FpGroup) of A_n from
+# [BLN+03] "A black-box group algorithm for recognizing finite symmetric 
+# and alternating groups, I", (2.2), (2.3).
+# or an "obvious" presentation of A_n for small n.
+# For n in [1,2], Fp is the trivial group.
+# For n=3, Fp has a single generator Fp.1.
+# For n>3, Fp has exactly two generators: Fp.1 corresponds to (1,2,3) and
+# Fp.2 corresponds to
+# - (3,...,n) if n is odd,
+# - (1,2)(3,...,n) if n is even.
+# For odd n, this is the same presentation as in
+# [CM80] "Generators and relations for discrete groups", (2.2).
+# For even n, it is similar to [CM80, (2.3)].
 RECOG.AnPresentation := function(n)
-    local F, rels;
+    local F, rels, s, t, k;
+    # Edge cases for small n
+    if n<1 then
+        return fail;
+    elif n=1 or n=2 then
+        return FreeGroup(0);
+    elif n=3 then
+        F := FreeGroup(1);
+        return F / [F.1^3];
+    fi;
+    # Generic case
     F := FreeGroup(2);
-    t := F.1;
+    t := F.1; # Notation for s and t as in [BLN+03]
     s := F.2;
     rels := [ s^(n-2), t^3 ];
     if IsOddInt(n) then
         Add(rels, (s*t)^n);
-        rels := Concatenation(
-            rels,
-            List([1..QuoInt(n-3, 2)], k -> (t*s^(-k)*t*s^k)^2)
-        );
+        for k in [1..QuoInt(n-3, 2)] do
+            Add(rels, (t*s^(-k)*t*s^k)^2);
+        od;
     else
         Add(rels, (s*t)^(n-1));
-        rels := Concatenation(
-            rels,
-            List([1..QuoInt(n-2, 2)], k -> (t^((-1)^k)*s^-k*t*s^k)^2)
-        );
+        Add(rels, (t^-1*s^-1*t*s)^2);
     fi;
     return F / rels;
 end;
