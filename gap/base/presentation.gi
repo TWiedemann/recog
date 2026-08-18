@@ -68,7 +68,8 @@ end;
 # For odd n, this is the same presentation as in
 # [CM80] "Generators and relations for discrete groups", section 6.4, relations
 # by Carmichael.
-# For even n, it is similar to [CM80, section 6.4, relations by Carmichael].
+# For even n, it is also the same as in [CM80, section 6.4, relations by Carmichael]
+# except that the relations for k>1 are omitted.
 RECOG.AnPresentation := function(n)
     local F, rels, s, t, k;
     # Edge cases for small n
