@@ -855,8 +855,12 @@ function(ri)
     # AnPresentation/SnPresentation.
     SetNiceGens(ri,StripMemory(res.gens));
     if res.stamp = "An" then
+        SetSize(ri,Factorial(Length(mp))/2);
+        SetIsRecogInfoForSimpleGroup(ri,true);
         SetStdPresentation(ri, RECOG.AnPresentation(deg));
     else
+        SetSize(ri,Factorial(Length(mp)));
+        SetIsRecogInfoForAlmostSimpleGroup(ri,true);
         SetStdPresentation(ri, RECOG.SnPresentation(deg));
     fi;
     return Success;
