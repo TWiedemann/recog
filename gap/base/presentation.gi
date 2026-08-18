@@ -66,8 +66,9 @@ end;
 # - (3,...,n) if n is odd,
 # - (1,2)(3,...,n) if n is even.
 # For odd n, this is the same presentation as in
-# [CM80] "Generators and relations for discrete groups", (2.2).
-# For even n, it is similar to [CM80, (2.3)].
+# [CM80] "Generators and relations for discrete groups", section 6.4, relations
+# by Carmichael.
+# For even n, it is similar to [CM80, section 6.4, relations by Carmichael].
 RECOG.AnPresentation := function(n)
     local F, rels, s, t, k;
     # Edge cases for small n
