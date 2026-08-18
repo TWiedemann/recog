@@ -48,7 +48,7 @@ RECOG.SnPresentation := function(n)
     F := FreeGroup(2);
     t := F.1; # Notation for s and t as in [BLN+03]
     s := F.2;
-    rels := [ s^n, t^2, (s*t)^(n-1), (t*s^-1*t*s)^3 ];
+    rels := [ s^n, t^2, (s*t)^(n-1) ];
     for j in [2..QuoInt(n,2)] do
         Add(rels, (t*s^-j*t*s^j)^2);
     od;
@@ -93,9 +93,12 @@ RECOG.AnPresentation := function(n)
         od;
     else
         Add(rels, (s*t)^(n-1));
-        for k in [1..QuoInt(n-2, 2)] do
-            Add(rels, (t^((-1)^k)*s^(-k)*t*s^k)^2);
-        od;
+        Add(rels, ((t^-1*s^-1*t*s)^2));
+        # The following relations appear in [CM80], but not in [BLN+03].
+        # The relation in the line above is precisely the case k=1.
+        # for k in [1..QuoInt(n-2, 2)] do
+        #     Add(rels, (t^((-1)^k)*s^(-k)*t*s^k)^2);
+        # od;
     fi;
     return F / rels;
 end;
