@@ -17,15 +17,52 @@
 ##
 #############################################################################
 
-# Returns a presentation Fp (i.e. an FpGroup) of S_n.
+# Returns the nice generators of SymmetricGroup(n):
+# - Empty list for n=1
+# - [(1,2)] for n=2
+# - [(1,2), (1,...,n)] for n>2
+RECOG.SnNiceGens := function(n)
+    local gens;
+    if n=1 then
+        gens := [];
+    else
+        gens := [(1,2)];
+        if n>2 then
+            Add(gens, CycleFromList([1..n])); # n-cycle (1,...,n)
+        fi;
+    fi;
+    return gens;
+end;
+
+# Returns the nice generators of AlternatingGroup(n):
+# - Empty list for n in [1,2]
+# - [(1,2,3)] for n=3
+# - [(1,2,3), (3,...,n)] for n>3, n odd
+# - [(1,2,3), (1,2)(3,...,n)] for n>3, n even
+RECOG.AnNiceGens := function(n)
+    local gens, cycle;
+    if n in [1,2] then
+        gens := [];
+    else
+        gens := [(1,2,3)];
+        if n>3 then
+            cycle := CycleFromList([3..n]); # (3,..,n)
+            if IsOddInt(n) then
+                Add(gens, cycle);
+            else
+                Add(gens, (1,2)*cycle);
+            fi;
+        fi;
+    fi;
+    return gens;
+end;
+
+# Returns a presentation Fp (i.e. an FpGroup) of S_n
+# on the generators RECOG.SnNiceGens(n) (respecting the order of these generators).
 # For n>2, the presentation is taken from
 # [BLN+03] "A black-box group algorithm for recognizing finite symmetric 
 # and alternating groups, I", (2.1).
-# For n<=2, an "obvious" presentation of S_n is used. More precisely:
-# For n=1, Fp is the trivial group.
-# For n>1, Fp has a generator Fp.1 which corresponds to (1,2).
-# This is the only generator if n=2.
-# For n>2, Fp has exactly two generators and Fp.2 corresponds to (1,...,n).
+# For n<=2, an "obvious" presentation of S_n is used.
 # Note: The claim in [BLN+03] that this presentation can be found in
 # [CM80] "Generators and relations for discrete groups"
 # is slightly imprecise. In [CM80, (6.26)],
@@ -56,17 +93,12 @@ RECOG.SnPresentation := function(n)
     return F / rels;
 end;
 
-# Returns a presentation Fp (i.e. an FpGroup) of A_n.
+# Returns a presentation Fp (i.e. an FpGroup) of A_n
+# on the generators RECOG.AnNiceGens(n) (respecting the order of these generators).
 # For n>3, the presentation is taken from
 # [CM] "Generators and Relations for Discrete Groups", Fourth Edition, 1980,
 # Coxeter-Moser, section 6.4, relations cited from Carmichael 1923, p. 262.
-# For n<=3, an "obvious" presentation of A_n is used. More precisely:
-# For n in [1,2], Fp is the trivial group.
-# For n=3, Fp has a single generator Fp.1.
-# For n>3, Fp has exactly two generators: Fp.1 corresponds to (1,2,3) and
-# Fp.2 corresponds to
-# - (3,...,n) if n is odd,
-# - (1,2)(3,...,n) if n is even.
+# For n<=3, an "obvious" presentation of A_n is used.
 # For odd n, this is the same presentation as in
 # [BLN+03] "A black-box group algorithm for recognizing finite symmetric 
 # and alternating groups, I", (2.2).
@@ -95,7 +127,8 @@ RECOG.AnPresentation := function(n)
         od;
     else
         Add(rels, (s*t)^(n-1));
-        # The following relations appear in [CM80], but not in [BLN+03].
+        # The following relations appear in [CM80], but not in [BLN+03]
+        # (except for the case k=1, which appears in [BLN+03])
         for k in [1..QuoInt(n-2, 2)] do
             Add(rels, (t^((-1)^k)*s^(-k)*t*s^k)^2);
         od;
