@@ -11,22 +11,22 @@ gap> testGiantPres := function(n, stamp, checkSize)
 >    size := Factorial(n)/2;
 >    giant := AlternatingGroup;
 >  else
->    Display("Incorrect argument for test function");
+>    Print("Incorrect argument for test function\n");
 >  fi;
 >  grp := giant(n);
 >  ri := TryFindHomMethod(grp, FindHomMethodsPerm.Giant, false);
 >  if not HasStdPresentation(ri) then
->    Display("StdPresentation was not set for ", stamp, ", n=", n);
+>    Print("StdPresentation was not set for ", stamp, ", n=", n, "\n");
 >  fi;
 >  Fp := StdPresentation(ri);
 >  if checkSize and Size(Fp) <> size then
->    Display("StdPresentation for ", stamp, ", n=", n, ", has incorrect size");
+>    Print("StdPresentation for ", stamp, ", n=", n, ", has incorrect size\n");
 >  fi;
 >  F := FreeGroupOfFpGroup(Fp);
 >  hom := GroupHomomorphismByImages(F, grp, GeneratorsOfGroup(F), NiceGens(ri));
 >  for rel in RelatorsOfFpGroup(Fp) do
 >    if not IsOne(hom(rel)) then
->      Display(stamp, ", for n=", n, ", does not satisfy the relations of StdPresentation");
+>      Print(stamp, ", for n=", n, ", does not satisfy the relations of StdPresentation\n");
 >    fi;
 >  od;
 > end;;
