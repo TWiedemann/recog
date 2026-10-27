@@ -549,6 +549,10 @@ InstallGlobalFunction( RecogniseGeneric,
         if not HasStdPresentation(ri) and not HasCalcStdPresentation(ri) then
             SetCalcStdPresentation(ri, CalcStdPresentationGenericLeaf);
         fi;
+        # Handle the case that nobody set RelationsSLP
+        if not HasCalcRelationsSLP(ri) and not HasCalcRelationsSLP(ri) then
+            SetCalcRelationsSLP(ri, CalcRelationsSLPGenericLeaf);
+        fi;
         if InfoLevel(InfoRecog) = 1 and depth = 0 then Print("\n"); fi;
         # StopStoringRandEls(ri);
         SetIsCorrect(ri,true); # Leaves are always correct
@@ -658,6 +662,9 @@ InstallGlobalFunction( RecogniseGeneric,
         if not HasStdPresentation(ri) and not HasCalcStdPresentation(ri) then
             SetCalcStdPresentation(ri,CalcStdPresentationGenericNonLeaf);
         fi;
+        if not HasRelationsSLP(ri) and not HasCalcRelationsSLP(ri) then
+            SetCalcRelationsSLP(ri,CalcRelationsSLPGenericNonLeaf);
+        fi;
         if InfoLevel(InfoRecog) = 1 and depth = 0 then Print("\n"); fi;
         # StopStoringRandEls(ri);
         SetFilterObj(ri,IsReady);
@@ -692,10 +699,13 @@ InstallGlobalFunction( RecogniseGeneric,
             done := ImmediateVerification(ri);
         fi;
         if done then
-            # Set nice generators and CalcStdPresentation of ri
+            # Set nice generators and CalcStdPresentation and RelationsSLP of ri
             SetNiceGens(ri,Concatenation(pregensfac(ri), NiceGens(riker)));
             if not HasStdPresentation(ri) and not HasCalcStdPresentation(ri) then
                 SetCalcStdPresentation(ri,CalcStdPresentationGenericNonLeaf);
+            fi;
+            if not HasRelationsSLP(ri) and not HasCalcRelationsSLP(ri) then
+                SetCalcRelationsSLP(ri,CalcRelationsSLPGenericNonLeaf);
             fi;
 
             # Check that all (input) generators of H lie in the group generated
@@ -886,6 +896,50 @@ InstallGlobalFunction( CalcStdPresentationGenericLeaf,
     fi;
   end);
 
+InstallGlobalFunction( CalcRelationsSLPGenericLeaf,
+  # generic (and bad!) method for a leaf node
+  function(ri)
+    local iso,G,gens,proj,rank,F,Fp,FM,homM,rels,relsM;
+    if HasSize(ri) and Size(ri) = 1 then
+        # The group is trivial, so we set a trivial presentation.
+        # However, we need to guarantee that GeneratorsOfGroup
+        # of the returned FpGroup is in bijection with NiceGens(ri).
+        # (One might expect that NiceGens(ri) has only one element
+        # and that this element is trivial, but better not rely on this.)
+        rank := Size(NiceGens(ri));
+        F := GroupWithMemory(FreeGroup(rank));
+        relsM := GeneratorsOfGroup(F);
+    else
+        # Compute a presentation using IsomorphismFpGroupByGenerators.
+        # This is an inefficient hack.
+        # TODO: Properly implement presentations in the corresponding
+        # (non-generic) leaf methods.
+        if ri!.projective then
+            # The group G associated to ri is the quotient of Grp(ri)
+            # modulo all scalar matrices.
+            # If ri was constructed as the image node with the method
+            # "BlocksModScalars", then this is not necessarily correct.
+            # However, this case can only arise at a leaf node if all
+            # blocks have size 1, and in this case Size(ri) = 1.
+            # Hence this case was already covered above.
+            proj := ProjectiveActionHomomorphismMatrixGroup(Grp(ri));
+            G := Image(proj);
+            gens := List(NiceGens(ri), a -> ImageElm(proj, a));
+        else
+            G := Grp(ri);
+            gens := NiceGens(ri);
+        fi;
+        iso := IsomorphismFpGroupByGenerators(G, gens);
+        Fp := Range(iso);
+        F := FreeGroupOfFpGroup(Fp);
+        FM := GroupWithMemory(F);
+        homM := GroupHomomorphismByImagesNC(F, FM); # from generators to generators
+        rels := RelatorsOfFpGroup(Fp); # list of elements of F
+        relsM := List(rels, homM); # image of relators in FM
+    fi;
+    SetRelationsSLP(ri, SLPOfElms(relsM));
+  end);
+
 InstallGlobalFunction( CalcStdPresentationGenericNonLeaf,
   # generic method for a non-leaf node
   function(ri)
@@ -987,6 +1041,12 @@ InstallGlobalFunction( CalcStdPresentationGenericNonLeaf,
     # check that all input generators can be expressed as SLPs in the nice generators.
     # This check is already performed in RecogniseGeneric, but if our recog node was
     # constructed in some other way (as unlikely as this seems), it might not be.
+  end);
+
+InstallGlobalFunction( CalcRelationsSLPGenericNonLeaf,
+  # generic method for a non-leaf node
+  function(ri)
+    return;
   end);
 
 # Some helper functions for generic code:
