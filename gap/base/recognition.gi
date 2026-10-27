@@ -457,6 +457,12 @@ InstallMethod( StdPresentation, [ IsRecogNode and HasCalcStdPresentation],
     return StdPresentation(ri);
   end );
 
+InstallMethod( RelationsSLP, [ IsRecogNode and HasCalcRelationsSLP],
+  function(ri)
+    CalcRelationsSLP(ri)(ri);
+    return RelationsSLP(ri);
+  end );
+
 InstallMethod( IsCorrect, [ IsRecogNode ],
   function(ri)
     local h;
