@@ -713,6 +713,8 @@ DeclareGlobalFunction( "SLPforElementGeneric" );
 ## TODO: Documentation!
 DeclareGlobalFunction( "CalcStdPresentationGenericLeaf" );
 DeclareGlobalFunction( "CalcStdPresentationGenericNonLeaf" );
+DeclareGlobalFunction( "CalcRelationsSLPGenericLeaf" );
+DeclareGlobalFunction( "CalcRelationsSLPGenericNonLeaf" );
 
 ## <#GAPDoc Label="SLPforElement">
 ## <ManSection>
